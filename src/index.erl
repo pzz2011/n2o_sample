@@ -32,7 +32,7 @@ event({chat,Pid}) ->
     Username = wf:user(),
     Message = wf:q(message),
     wf:wire(#jq{target=message,method=[focus,select]}),
-    wf:update(text,#panel{id=banner,body=["Last Message: ",Message]}),
+    wf:update(banner,#panel{id=banner,body=["Last Message: ",Message]}),
     Pid ! {message, Username, Message};
 
 event(logout) -> 
