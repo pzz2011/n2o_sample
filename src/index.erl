@@ -12,7 +12,7 @@ title() -> [ <<"N2O">> ].
 
 body() ->
     {ok,Pid} = wf:comet(fun() -> chat_loop() end), 
-    [ #span{ body = io_lib:format("'/index?x=' is ~p",[wf:qs(<<"x">>)]) },
+    [ #span{ body = wf:f("'/index?x=' is ~p",[wf:qs(<<"x">>)]) },
       #panel{ id=history },
       #textbox{ id=message },
       #button{ id=send, body= <<"Chat">>, postback={chat,Pid}, source=[message] } ].
@@ -21,15 +21,18 @@ event(init) ->
     User = wf:user(),
     wf:reg(room),
     X = wf:qs(<<"x">>),
-    wf:insert_bottom(history, [ #span{id=text, body = io_lib:format("User ~s logged in. X = ~p", [User,X]) },
-                                #button{id=logout, body="Logout", postback=logout}, #br{} ]);
+    wf:insert_top(history,
+        #panel{id=banner, body= 
+            [#span{id=text, body = wf:f("User ~s logged in. X = ~p", [User,X]) },
+             #button{id=logout, body="Logout", postback=logout}, 
+             #br{}]});
 
 event({chat,Pid}) ->
-    error_logger:info_msg("Chat Pid: ~p",[Pid]),
+    wf:info("Chat Pid: ~p",[Pid]),
     Username = wf:user(),
     Message = wf:q(message),
     wf:wire(#jq{target=message,method=[focus,select]}),
-    wf:update(text,[#panel{body= <<"Text">>},#panel{body= <<"OK">>}]),
+    wf:update(text,#panel{id=banner,body=["Last Message: ",Message]}),
     Pid ! {message, Username, Message};
 
 event(logout) -> 
@@ -47,10 +50,10 @@ event(Event) -> wf:info("Event: ~p", [Event]).
 chat_loop() ->
     receive 
         {message, Username, Message} ->
-            Terms = [ #span { body=Username }, [": "], #span { body=Message }, #br{} ],
+            Terms = #panel { body= [ Username,": ",Message,#br{} ] },
             wf:insert_bottom(history, Terms),
-            wf:wire("$('#chatHistory').scrollTop = $('#chatHistory').scrollHeight;"),
+            wf:wire("document.querySelector('#history').scrollTop = document.querySelector('#history').scrollHeight;"),
             wf:flush(room);
-        Unknown -> error_logger:info_msg("Unknown Looper Message ~p",[Unknown])
+        Unknown -> wf:info("Unknown Looper Message ~p",[Unknown])
     end,
     chat_loop().
