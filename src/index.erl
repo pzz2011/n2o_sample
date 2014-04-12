@@ -25,7 +25,8 @@ event(init) ->
         #panel{id=banner, body= 
             [#span{id=text, body = wf:f("User ~s logged in. X = ~p", [User,X]) },
              #button{id=logout, body="Logout", postback=logout}, 
-             #br{}]});
+             #br{}]}),
+    wf:insert_top(history,"---");
 
 event({chat,Pid}) ->
     wf:info("Chat Pid: ~p",[Pid]),

@@ -25,8 +25,13 @@ init([]) ->
 dispatch_rules() ->
     cowboy_router:compile(
         [{'_', [
-            {"/static/[...]", cowboy_static, [{directory, {priv_dir, ?APP, [<<"static">>]}},
-                                                {mimetypes, {fun mimetypes:path_to_mimes/2, default}}]},
+            {"/static/[...]", cowboy_static,
+                {priv_dir, ?APP, <<"static">>,[{mimetypes,cow_mimetypes,all}]}},
+
+%            {"/static/[...]", cowboy_static, % 0.8.6
+%                [{directory, {priv_dir, ?APP, [<<"static">>]}},
+%                {mimetypes, {fun mimetypes:path_to_mimes/2, default}}]},
+
             {"/rest/:resource", rest_cowboy, []},
             {"/rest/:resource/:id", rest_cowboy, []},
             {"/ws/[...]", bullet_handler, [{handler, n2o_bullet}]},
