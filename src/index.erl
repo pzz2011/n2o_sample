@@ -11,6 +11,7 @@ main() ->
 title() -> [ <<"N2O">> ].
 
 body() ->
+    wf:info("RENDER!"),
     {ok,Pid} = wf:comet(fun() -> chat_loop() end), 
     [ #span{ body = wf:f("'/index?x=' is ~p",[wf:qs(<<"x">>)]) },
       #panel{ id=history },
@@ -26,7 +27,7 @@ event(init) ->
             [#span{id=text, body = wf:f("User ~s logged in. X = ~p", [User,X]) },
              #button{id=logout, body="Logout", postback=logout}, 
              #br{}]}),
-    wf:insert_top(history,"---");
+    wf:insert_top(history,"-1-");
 
 event({chat,Pid}) ->
     wf:info("Chat Pid: ~p",[Pid]),
